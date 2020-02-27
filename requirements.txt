@@ -1,5 +1,4 @@
-deeplabcut
 dash
 plotly
 scikit-image
-
+gunicorn
