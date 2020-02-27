@@ -11,43 +11,52 @@ img = data.chelsea()
 img = img[::2, ::2]
 fig = px.imshow(img)
 
-fig.add_trace(go.Scatter(x=[0], y=[0], mode='markers'))
+fig.add_trace(go.Scatter(x=[], y=[], marker_color=[],
+              marker_cmin=0, marker_cmax=3, mode='markers'))
 
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-styles = {
-    'pre': {
-        'border': 'thin lightgrey solid',
-        'overflowX': 'scroll'
-    }
-}
+options = ['nose', 'mouth', 'eye']
+colors = px.colors.qualitative.Plotly
 
 app.layout = html.Div([
-    dcc.Graph(
-        id='basic-interactions',
-        config={'editable':True},
-        figure=fig,
-    ),
-
-])
+    html.Div([
+        dcc.Graph(
+            id='basic-interactions',
+            config={'editable':True},
+            figure=fig,
+    )],
+    style={'width':'50%'}),
+    html.Div([
+        dcc.RadioItems(id='radio',
+            options=[{'label':opt, 'value':opt} for opt in options],
+            value=options[0]
+        )], 
+    style={'width':'40%'}),
+    ])
 
 
 
 @app.callback(
-    Output('basic-interactions', 'extendData'),
+    [Output('basic-interactions', 'extendData'),
+     Output('radio', 'value')],
     [Input('basic-interactions', 'clickData')],
-    [State('basic-interactions', 'figure')],
+    [State('radio', 'value')]
     )
-def display_click_data(clickData, fig):
+def display_click_data(clickData, option):
     if clickData is None or fig is None:
-        return dash.no_update
+        return dash.no_update, dash.no_update
     if clickData is None or fig is None:
         return dash.no_update
     x, y = clickData['points'][0]['x'], clickData['points'][0]['y']
-    return [dict(x=[[x]], y=[[y]]), [1]]
+    for i, el in enumerate(options):
+        if el == option:
+            new_option = options[(i+1)%(len(options))]
+            color=i
+    return [{'x':[[x]], 'y':[[y]], "marker.color":[[color]]}, [1]], new_option
 
 
 if __name__ == '__main__':
