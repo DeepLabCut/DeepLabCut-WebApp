@@ -10,21 +10,24 @@ from skimage import data, transform
 
 img = data.chelsea()
 img = img[::2, ::2]
-fig = px.imshow(img)
+images = [img, img[::-1], transform.rotate(img, 30)]
 
-fig.add_trace(go.Scatter(x=[], y=[], marker_color=[],
-              marker_cmin=0, marker_cmax=3, mode='markers'))
 
+def make_figure_image(i):
+    fig = px.imshow(images[i % len(images)])
+    fig.update_traces(hoverinfo='none')
+    fig.add_trace(go.Scatter(x=[], y=[], marker_color=[],
+                marker_cmin=0, marker_cmax=3, marker_size=18, mode='markers'))
+    return fig
+
+fig = make_figure_image(0)
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-
 server = app.server
 
-
-options = ['nose', 'mouth', 'eye']
-colors = px.colors.qualitative.Plotly
+options = ['left eye', 'right eye', 'nose']
 
 app.layout = html.Div([
     html.Div([
@@ -33,15 +36,40 @@ app.layout = html.Div([
             config={'editable':True},
             figure=fig,
     )],
-    style={'width':'50%'}),
+    className="six columns"
+    ),
     html.Div([
+        html.H2("Controls"),
         dcc.RadioItems(id='radio',
             options=[{'label':opt, 'value':opt} for opt in options],
             value=options[0]
-        )], 
-    style={'width':'40%'}),
+        ),
+        html.Button('Previous', id='previous'),
+        html.Button('Next', id='next'),
+        dcc.Store(id='store', data=0)
+        ], 
+    className="six columns"
+    ),
     ])
 
+
+@app.callback(
+    [Output('basic-interactions', 'figure'),
+     Output('store', 'data')],
+    [Input('next', 'n_clicks'),
+     Input('previous', 'n_clicks')],
+    [State('store', 'data')]
+    )
+def display_click_data(n_clicks_n, n_clicks_p, val):
+    if n_clicks_n is None and n_clicks_p is None:
+        return dash.no_update, dash.no_update
+    if val is None:
+        val = 0
+    ctx = dash.callback_context
+    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    index = val + 1 if button_id == 'next' else val - 1
+    fig = make_figure_image(index)
+    return fig, index
 
 
 @app.callback(
