@@ -1,2 +1,2 @@
 # DeepLabCut-WebApp
-an alpha playground for a web-based labeling tool for DLC
+  A playground for a web-based labeling tool for DLC. Started at the do-a-thon as part of the Chan Zuckerberg Initiative's Essential Open Source Software for Science program's kickoff meeting in Berkley, CA. 
