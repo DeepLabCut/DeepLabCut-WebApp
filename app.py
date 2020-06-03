@@ -20,7 +20,7 @@ images = [img, img[::-1], transform.rotate(img, 30)]
 
 def make_figure_image(i):
     fig = px.imshow(images[i % len(images)])
-    fig.update_traces(hoverinfo='none')
+    fig.update_traces(hoverinfo='none', hovertemplate='')
     fig.add_trace(go.Scatter(x=[], y=[], marker_color=[],
                              marker_cmin=0, marker_cmax=3, marker_size=18, mode='markers'))
     return fig
