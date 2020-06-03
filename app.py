@@ -27,7 +27,6 @@ def make_figure_image(i):
 
 
 fig = make_figure_image(0)
-fig.layout.hovermode = 'closest'
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -55,6 +54,7 @@ app.layout = html.Div([
         ),
         html.Button('Previous', id='previous'),
         html.Button('Next', id='next'),
+        html.Button('Clear', id='clear'),
         dcc.Store(id='store', data=0)
         ], 
     className="six columns"
@@ -66,16 +66,23 @@ app.layout = html.Div([
     [Output('basic-interactions', 'figure'),
      Output('store', 'data')],
     [Input('next', 'n_clicks'),
-     Input('previous', 'n_clicks')],
+     Input('previous', 'n_clicks'),
+     Input('clear', 'n_clicks')],
     [State('store', 'data')]
     )
-def display_click_data(n_clicks_n, n_clicks_p, val):
-    if n_clicks_n is None and n_clicks_p is None:
+def display_click_data(n_clicks_n, n_clicks_p, n_clicks_c, val):
+    if not any(click for click in (n_clicks_n, n_clicks_p, n_clicks_c)):
         return dash.no_update, dash.no_update
     if val is None:
         val = 0
     ctx = dash.callback_context
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    if button_id == 'clear':
+        fig = make_figure_image(val)
+        global already_labeled
+        already_labeled = set()
+        # app.layout.children[1].children[1].value = options[0]
+        return fig, val
     index = val + 1 if button_id == 'next' else val - 1
     fig = make_figure_image(index)
     return fig, index
@@ -90,11 +97,9 @@ def display_click_data(n_clicks_n, n_clicks_p, val):
 def display_click_data(clickData, option):
     if clickData is None or fig is None:
         return dash.no_update, dash.no_update
-    if clickData is None or fig is None:
-        return dash.no_update
     n_bpt = options.index(option)
     if n_bpt in already_labeled:
-        return dash.no_update
+        return dash.no_update, dash.no_update
     already_labeled.add(n_bpt)
     x, y = clickData['points'][0]['x'], clickData['points'][0]['y']
     new_option = options[min(len(options) - 1, n_bpt + 1)]
