@@ -22,11 +22,12 @@ def make_figure_image(i):
     fig = px.imshow(images[i % len(images)])
     fig.update_traces(hoverinfo='none')
     fig.add_trace(go.Scatter(x=[], y=[], marker_color=[],
-                marker_cmin=0, marker_cmax=3, marker_size=18, mode='markers'))
+                             marker_cmin=0, marker_cmax=3, marker_size=18, mode='markers'))
     return fig
 
 
 fig = make_figure_image(0)
+fig.layout.hovermode = 'closest'
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -34,6 +35,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
 options = random.sample(KEYPOINTS, 3)
+already_labeled = set()
 
 
 app.layout = html.Div([
@@ -90,12 +92,13 @@ def display_click_data(clickData, option):
         return dash.no_update, dash.no_update
     if clickData is None or fig is None:
         return dash.no_update
+    n_bpt = options.index(option)
+    if n_bpt in already_labeled:
+        return dash.no_update
+    already_labeled.add(n_bpt)
     x, y = clickData['points'][0]['x'], clickData['points'][0]['y']
-    for i, el in enumerate(options):
-        if el == option:
-            new_option = options[(i+1)%(len(options))]
-            color=i
-    return [{'x':[[x]], 'y':[[y]], "marker.color":[[color]]}, [1]], new_option
+    new_option = options[min(len(options) - 1, n_bpt + 1)]
+    return [{'x':[[x]], 'y':[[y]], "marker.color":[[n_bpt]]}, [1]], new_option
 
 
 if __name__ == '__main__':
