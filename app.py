@@ -2,11 +2,16 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
-
-import pandas
+import random
 import plotly.graph_objects as go
 import plotly.express as px
 from skimage import data, transform
+
+
+KEYPOINTS = ['Nose', 'L_Eye', 'R_Eye', 'L_Ear', 'R_Ear', 'Throat',
+             'Withers', 'TailSet', 'L_F_Paw', 'R_F_Paw', 'L_F_Wrist',
+             'R_F_Wrist', 'L_F_Elbow', 'R_F_Elbow', 'L_B_Paw', 'R_B_Paw',
+             'L_B_Hock', 'R_B_Hock', 'L_B_Stiffle', 'R_B_Stiffle']
 
 img = data.chelsea()
 img = img[::2, ::2]
@@ -20,6 +25,7 @@ def make_figure_image(i):
                 marker_cmin=0, marker_cmax=3, marker_size=18, mode='markers'))
     return fig
 
+
 fig = make_figure_image(0)
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -27,7 +33,8 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
-options = ['left eye', 'right eye', 'nose']
+options = random.sample(KEYPOINTS, 3)
+
 
 app.layout = html.Div([
     html.Div([
