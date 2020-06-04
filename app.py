@@ -78,7 +78,7 @@ def compute_circle_center(path):
     den = 2 * (delta20 * delta02 - delta11 * delta11)
     a = num_a / den
     b = num_b / den
-    return int(a), int(b)
+    return a, b
 
 
 def get_plotly_color(n):
@@ -142,12 +142,11 @@ app.layout = html.Div([
 
 @app.callback(Output('placeholder', 'children'),
               [Input('save', 'n_clicks')],
-              [State('canvas', 'figure'),
-               State('store', 'data')])
-def save_data(click_s, figure, ind_image):
-    data = figure['data'][1]
-    xy = [(x, y) for x, y in zip(data['x'], data['y'])]
-    print(xy, ind_image)
+              [State('store', 'data')])
+def save_data(click_s, ind_image):
+    if click_s:
+        xy = {shape.name: compute_circle_center(shape.path) for shape in fig.layout.shapes}
+        print(xy, ind_image)
 
 
 @app.callback(
@@ -156,6 +155,7 @@ def save_data(click_s, figure, ind_image):
      Output('store', 'data'),
      Output('shapes', 'children')],
     [Input('canvas', 'clickData'),
+     Input('canvas', 'relayoutData'),
      Input('next', 'n_clicks'),
      Input('previous', 'n_clicks'),
      Input('clear', 'n_clicks')],
@@ -164,17 +164,12 @@ def save_data(click_s, figure, ind_image):
      State('store', 'data'),
      State('shapes', 'children')]
     )
-def update_image(clickData, click_n, click_p, click_c, figure, option, ind_image, shapes):
+def update_image(clickData, relayoutData, click_n, click_p, click_c, figure, option, ind_image, shapes):
     if not any(event for event in (clickData, click_n, click_p, click_c)):
         return dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
     if ind_image is None:
         ind_image = 0
-
-    if shapes is None:
-        shapes = []
-    else:
-        shapes = json.loads(shapes)
 
     ctx = dash.callback_context
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
@@ -187,19 +182,31 @@ def update_image(clickData, click_n, click_p, click_c, figure, option, ind_image
         ind_image = (ind_image - 1) % len(images)
         return make_figure_image(ind_image), options[0], ind_image, '[]'
 
-    n_bpt = options.index(option)
-    x, y = clickData['points'][0]['x'], clickData['points'][0]['y']
-    circle = draw_circle((x, y), 10)
-    color = get_plotly_color(n_bpt)
-    shape = dict(type='path',
-                 path=circle,
-                 line_color=color,
-                 fillcolor=color,
-                 layer='above')
-    if n_bpt >= len(shapes):
-        shapes.append(shape)
+    if shapes is None:
+        shapes = []
     else:
-        shapes[n_bpt] = shape
+        shapes = json.loads(shapes)
+
+    n_bpt = options.index(option)
+    already_labeled = [shape['name'] for shape in shapes]
+    if option not in already_labeled:
+        if clickData:
+            x, y = clickData['points'][0]['x'], clickData['points'][0]['y']
+            circle = draw_circle((x, y), 10)
+            color = get_plotly_color(n_bpt)
+            shape = dict(type='path',
+                         path=circle,
+                         line_color=color,
+                         fillcolor=color,
+                         layer='above',
+                         name=option)
+            shapes.append(shape)
+    else:
+        key = list(relayoutData)[0]
+        if 'path' in key:
+            ind_moving = int(key.split('[')[1].split(']')[0])
+            path = relayoutData.pop(key)
+            shapes[ind_moving]['path'] = path
     fig.update_layout(shapes=shapes)
     new_option = options[min(len(options) - 1, n_bpt + 1)]
     return ({'data': figure['data'], 'layout': fig['layout']},
