@@ -122,11 +122,11 @@ def update_image(clickData, click_n, click_p, click_c, figure, option, ind_image
         fig = make_figure_image(ind_image)
         return fig, options[0], ind_image
     elif button_id == 'next':
-        ind_image += 1
+        ind_image = (ind_image + 1) % len(images)
         fig = make_figure_image(ind_image)
         return fig, options[0], ind_image
     elif button_id == 'previous':
-        ind_image -= 1
+        ind_image = (ind_image - 1) % len(images)
         fig = make_figure_image(ind_image)
         return fig, options[0], ind_image
 
