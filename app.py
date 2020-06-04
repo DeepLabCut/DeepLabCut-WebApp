@@ -52,7 +52,7 @@ styles = {
 app.layout = html.Div([
     html.Div([
         dcc.Graph(
-            id='basic-interactions',
+            id='canvas',
             config={'editable': False},
             figure=fig)
     ],
@@ -67,6 +67,7 @@ app.layout = html.Div([
         html.Button('Previous', id='previous'),
         html.Button('Next', id='next'),
         html.Button('Clear', id='clear'),
+        html.Button('Save', id='save'),
         dcc.Store(id='store', data=0)
     ],
         className="six columns"
@@ -81,20 +82,30 @@ app.layout = html.Div([
     ],
         className='six columns'
     ),
-    html.Div(id='already-labeled', style={'display': 'none'})
+    html.Div(id='placeholder', style={'display': 'none'})
 ]
 )
 
 
+@app.callback(Output('placeholder', 'children'),
+              [Input('save', 'n_clicks')],
+              [State('canvas', 'figure'),
+               State('store', 'data')])
+def save_data(click_s, figure, ind_image):
+    data = figure['data'][1]
+    xy = [(x, y) for x, y in zip(data['x'], data['y'])]
+    print(xy, ind_image)
+
+
 @app.callback(
-    [Output('basic-interactions', 'figure'),
+    [Output('canvas', 'figure'),
      Output('radio', 'value'),
      Output('store', 'data')],
-    [Input('basic-interactions', 'clickData'),
+    [Input('canvas', 'clickData'),
      Input('next', 'n_clicks'),
      Input('previous', 'n_clicks'),
      Input('clear', 'n_clicks')],
-    [State('basic-interactions', 'figure'),
+    [State('canvas', 'figure'),
      State('radio', 'value'),
      State('store', 'data')]
     )
