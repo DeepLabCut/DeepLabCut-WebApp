@@ -5,10 +5,10 @@
 This version is comprises a web applications using [dash and plotly](https://dash.plotly.com/).
 
 # Installation & running
-
+```
 pip3 install -r requirements.txt
 python3 app.py
-
+```
 Once locally deployed open the app via the URL in your browser. 
 
 # Running a cloud instance
