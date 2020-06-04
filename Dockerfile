@@ -8,4 +8,10 @@ RUN pip install --no-cache-dir \
     pandas \
     gunicorn 
 
+RUN mkdir -p /app
+WORKDIR /app
+
+ADD config/ /app/config
+ADD app.py /app
+
 ENTRYPOINT ["gunicorn", "-w", "1", "-b", "0.0.0.0:8050", "app:server"]
