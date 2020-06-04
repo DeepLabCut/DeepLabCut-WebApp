@@ -234,7 +234,7 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
         fig.update_yaxes(autorange=True)
     if button_id != 'slider':
         n_bpt += 1
-    new_option = options[min(len(options) - 1, n_bpt + 1)]
+    new_option = options[min(len(options) - 1, n_bpt)]
     return ({'data': figure['data'], 'layout': fig['layout']},
             new_option,
             ind_image,
