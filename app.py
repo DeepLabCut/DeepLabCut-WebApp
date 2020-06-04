@@ -20,7 +20,7 @@ KEYPOINTS = ['Nose', 'L_Eye', 'R_Eye', 'L_Ear', 'R_Ear', 'Throat',
              'R_F_Wrist', 'L_F_Elbow', 'R_F_Elbow', 'L_B_Paw', 'R_B_Paw',
              'L_B_Hock', 'R_B_Hock', 'L_B_Stiffle', 'R_B_Stiffle']
 N_SUBSET = 3
-IMAGE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'full_dog.png')
+IMAGE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'openfield-Pranav-2018-10-30/labeled-data/m4s1/img0088.png')
 encoded_image = base64.b64encode(open(IMAGE_PATH, 'rb').read())
 
 
@@ -28,7 +28,6 @@ img = data.chelsea()
 img = img[::2, ::2]
 images = [img, img[::-1], transform.rotate(img, 30)]
 cmap = matplotlib.cm.get_cmap(COLORMAP, N_SUBSET)
-
 
 def make_figure_image(i):
     fig = px.imshow(images[i % len(images)])
