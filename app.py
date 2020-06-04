@@ -28,7 +28,7 @@ def make_figure_image(i):
     fig.layout.xaxis.showticklabels = False
     fig.layout.yaxis.showticklabels = False
     fig.update_traces(hoverinfo='none', hovertemplate='')
-    fig.add_trace(go.Scatter(x=[], y=[], marker_color=[], text=[], hoverinfo=[],
+    fig.add_trace(go.Scatter(x=[], y=[], marker_color=[], text=[],
                              marker_cmin=0, marker_cmax=3, marker_size=18, mode='markers'))
     return fig
 
@@ -41,7 +41,6 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
 options = random.sample(KEYPOINTS, 3)
-already_labeled = set()
 
 styles = {
     'pre': {
@@ -78,55 +77,61 @@ app.layout = html.Div([
                 Click on the image to add a keypoint.
             """),
         html.Pre(id='click-data', style=styles['pre']),
-        html.Img(src='data:image/png;charset=utf-8;base64,{}'.format(encoded_image))
+        # html.Img(src='data:image/png;charset=utf-8;base64,{}'.format(encoded_image))
     ],
-        className='three columns'),
+        className='six columns'
+    ),
+    html.Div(id='already-labeled', style={'display': 'none'})
 ]
 )
 
 
 @app.callback(
     [Output('basic-interactions', 'figure'),
+     Output('radio', 'value'),
      Output('store', 'data')],
-    [Input('next', 'n_clicks'),
+    [Input('basic-interactions', 'clickData'),
+     Input('next', 'n_clicks'),
      Input('previous', 'n_clicks'),
      Input('clear', 'n_clicks')],
-    [State('store', 'data')]
+    [State('basic-interactions', 'figure'),
+     State('radio', 'value'),
+     State('store', 'data')]
     )
-def display_click_data(n_clicks_n, n_clicks_p, n_clicks_c, val):
-    if not any(click for click in (n_clicks_n, n_clicks_p, n_clicks_c)):
-        return dash.no_update, dash.no_update
-    if val is None:
-        val = 0
+def update_image(clickData, click_n, click_p, click_c, figure, option, ind_image):
+    if not any(event for event in (clickData, click_n, click_p, click_c)):
+        return dash.no_update, dash.no_update, dash.no_update
+
+    if ind_image is None:
+        ind_image = 0
+
     ctx = dash.callback_context
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    global already_labeled
-    already_labeled = set()
-    app.layout['radio'].value = options[0]
     if button_id == 'clear':
-        fig = make_figure_image(val)
-        return fig, val
-    index = val + 1 if button_id == 'next' else val - 1
-    fig = make_figure_image(index)
-    return fig, index
+        fig = make_figure_image(ind_image)
+        return fig, options[0], ind_image
+    elif button_id == 'next':
+        ind_image += 1
+        fig = make_figure_image(ind_image)
+        return fig, options[0], ind_image
+    elif button_id == 'previous':
+        ind_image -= 1
+        fig = make_figure_image(ind_image)
+        return fig, options[0], ind_image
 
-
-@app.callback(
-    [Output('basic-interactions', 'extendData'),
-     Output('radio', 'value')],
-    [Input('basic-interactions', 'clickData')],
-    [State('radio', 'value')]
-    )
-def display_click_data(clickData, option):
-    if clickData is None or fig is None:
-        return dash.no_update, dash.no_update
     n_bpt = options.index(option)
-    if n_bpt in already_labeled:
-        return dash.no_update, dash.no_update
-    already_labeled.add(n_bpt)
     x, y = clickData['points'][0]['x'], clickData['points'][0]['y']
+    data = figure['data'][1]
+    if n_bpt >= len(data['x']):
+        data['x'].append(x)
+        data['y'].append(y)
+        data['text'].append(option)
+        data['marker']['color'].append(n_bpt)
+    else:
+        data['x'][n_bpt] = x
+        data['y'][n_bpt] = y
     new_option = options[min(len(options) - 1, n_bpt + 1)]
-    return [{'x':[[x]], 'y':[[y]], "marker.color":[[n_bpt]], 'text':[[option]]}, [1]], new_option
+    return figure, new_option, ind_image
 
 
 if __name__ == '__main__':
