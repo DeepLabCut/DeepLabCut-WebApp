@@ -118,7 +118,16 @@ app.layout = html.Div([
         html.Button('Next', id='next'),
         html.Button('Clear', id='clear'),
         html.Button('Save', id='save'),
-        dcc.Store(id='store', data=0)
+        dcc.Store(id='store', data=0),
+        html.P([
+            html.Label('Keypoint size'),
+            dcc.Slider(id='slider',
+                       min=3,
+                       max=36,
+                       step=1,
+                       value=12)
+            ], style={'width': '80%',
+                      'display': 'inline-block'})
     ],
         className="six columns"
     ),
@@ -128,7 +137,7 @@ app.layout = html.Div([
                 Click on the image to add a keypoint.
             """),
         html.Pre(id='click-data', style=styles['pre']),
-        # html.Img(src='data:image/png;charset=utf-8;base64,{}'.format(encoded_image))
+        html.Img(src='data:image/png;charset=utf-8;base64,{}'.format(encoded_image))
     ],
         className='six columns'
     ),
@@ -156,18 +165,26 @@ def save_data(click_s, ind_image):
      Input('canvas', 'relayoutData'),
      Input('next', 'n_clicks'),
      Input('previous', 'n_clicks'),
-     Input('clear', 'n_clicks')],
+     Input('clear', 'n_clicks'),
+     Input('slider', 'value')],
     [State('canvas', 'figure'),
      State('radio', 'value'),
      State('store', 'data'),
      State('shapes', 'children')]
     )
-def update_image(clickData, relayoutData, click_n, click_p, click_c, figure, option, ind_image, shapes):
+def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
+                 figure, option, ind_image, shapes):
     if not any(event for event in (clickData, click_n, click_p, click_c)):
         return dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
     if ind_image is None:
         ind_image = 0
+
+    if shapes is None:
+        shapes = []
+    else:
+        shapes = json.loads(shapes)
+    n_bpt = options.index(option)
 
     ctx = dash.callback_context
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
@@ -180,19 +197,18 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, figure, opt
     elif button_id == 'previous':
         ind_image = (ind_image - 1) % len(images)
         return make_figure_image(ind_image), options[0], ind_image, '[]'
+    elif button_id == 'slider':
+        for i in range(len(shapes)):
+            center = compute_circle_center(shapes[i]['path'])
+            new_path = draw_circle(center, slider_val)
+            shapes[i]['path'] = new_path
 
-    if shapes is None:
-        shapes = []
-    else:
-        shapes = json.loads(shapes)
-
-    n_bpt = options.index(option)
     already_labeled = [shape['name'] for shape in shapes]
     key = list(relayoutData)[0]
-    if option not in already_labeled:
+    if option not in already_labeled and button_id != 'slider':
         if clickData:
             x, y = clickData['points'][0]['x'], clickData['points'][0]['y']
-            circle = draw_circle((x, y), 10)
+            circle = draw_circle((x, y), slider_val)
             color = get_plotly_color(n_bpt)
             shape = dict(type='path',
                          path=circle,
@@ -203,7 +219,7 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, figure, opt
                          name=option)
             shapes.append(shape)
     else:
-        if 'path' in key:
+        if 'path' in key and button_id != 'slider':
             ind_moving = int(key.split('[')[1].split(']')[0])
             path = relayoutData.pop(key)
             shapes[ind_moving]['path'] = path
@@ -216,6 +232,8 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, figure, opt
     elif 'autorange' in key:
         fig.update_xaxes(autorange=True)
         fig.update_yaxes(autorange=True)
+    if button_id != 'slider':
+        n_bpt += 1
     new_option = options[min(len(options) - 1, n_bpt + 1)]
     return ({'data': figure['data'], 'layout': fig['layout']},
             new_option,
