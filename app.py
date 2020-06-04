@@ -25,7 +25,7 @@ def load_image(url):
 
 class AppContext():
 
-    def __init__(self, app, config = "config.json"):
+    def __init__(self, app, config = "config/config.json"):
 
         self.app = app
         self.load_config(config)
