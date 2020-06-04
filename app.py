@@ -208,6 +208,14 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, figure, opt
             path = relayoutData.pop(key)
             shapes[ind_moving]['path'] = path
     fig.update_layout(shapes=shapes)
+    if 'range[' in key:
+        xrange = relayoutData['xaxis.range[0]'], relayoutData['xaxis.range[1]']
+        yrange = relayoutData['yaxis.range[0]'], relayoutData['yaxis.range[1]']
+        fig.update_xaxes(range=xrange, autorange=False)
+        fig.update_yaxes(range=yrange, autorange=False)
+    elif 'autorange' in key:
+        fig.update_xaxes(autorange=True)
+        fig.update_yaxes(autorange=True)
     new_option = options[min(len(options) - 1, n_bpt + 1)]
     return ({'data': figure['data'], 'layout': fig['layout']},
             new_option,
