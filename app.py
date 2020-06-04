@@ -35,8 +35,6 @@ def make_figure_image(i):
     fig.layout.xaxis.showticklabels = False
     fig.layout.yaxis.showticklabels = False
     fig.update_traces(hoverinfo='none', hovertemplate='')
-    fig.add_trace(go.Scatter(x=[], y=[], marker_color=[], text=[],
-                             marker_cmin=0, marker_cmax=3, marker_size=18, mode='markers'))
     return fig
 
 
@@ -113,7 +111,7 @@ app.layout = html.Div([
     html.Div([
         html.H2("Controls"),
         dcc.RadioItems(id='radio',
-                       options=[{'label':opt, 'value':opt} for opt in options],
+                       options=[{'label': opt, 'value': opt} for opt in options],
                        value=options[0]
                        ),
         html.Button('Previous', id='previous'),
@@ -174,6 +172,7 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, figure, opt
     ctx = dash.callback_context
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
     if button_id == 'clear':
+        fig.layout.shapes = []
         return make_figure_image(ind_image), options[0], ind_image, '[]'
     elif button_id == 'next':
         ind_image = (ind_image + 1) % len(images)
@@ -189,6 +188,7 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, figure, opt
 
     n_bpt = options.index(option)
     already_labeled = [shape['name'] for shape in shapes]
+    key = list(relayoutData)[0]
     if option not in already_labeled:
         if clickData:
             x, y = clickData['points'][0]['x'], clickData['points'][0]['y']
@@ -199,10 +199,10 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, figure, opt
                          line_color=color,
                          fillcolor=color,
                          layer='above',
+                         opacity=0.8,
                          name=option)
             shapes.append(shape)
     else:
-        key = list(relayoutData)[0]
         if 'path' in key:
             ind_moving = int(key.split('[')[1].split(']')[0])
             path = relayoutData.pop(key)
