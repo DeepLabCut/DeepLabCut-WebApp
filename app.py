@@ -8,8 +8,9 @@ from dash.dependencies import Input, Output, State
 import pandas
 import plotly.graph_objects as go
 import plotly.express as px
-from skimage import data, transform
+from skimage import data, transform, io
 import numpy as np
+import glob
 
 import json
 
@@ -37,7 +38,7 @@ class AppContext():
         self.select_image(0)
 
     def make_figure_image(self, i):
-        img = load_image(self.fnames[i % len(self.fnames)])
+        img = io.imread(self.fnames[i % len(self.fnames)])
         fig = px.imshow(img)
         fig.update_traces(hoverinfo='none')
         fig.add_trace(go.Scatter(x=[], y=[], marker_color=[],
@@ -48,7 +49,7 @@ class AppContext():
         with open(config, "r") as fp:
             self.config = json.load(fp)
         with open(self.config["urls"], "r") as fp:
-            self.fnames = [f for f in fp.read().split('\n') if len(f)]
+            self.fnames = glob.glob('data/*.png')
 
     def select_image(self, i):
         self._fig = self.make_figure_image(i)
@@ -118,7 +119,6 @@ def display_click_data(n_clicks_n, n_clicks_p, val):
     [State('radio', 'value')]
     )
 def display_click_data(clickData, option):
-    print(context)
     if clickData is None or context.fig is None:
         return dash.no_update, dash.no_update
     if clickData is None or context.fig is None:
