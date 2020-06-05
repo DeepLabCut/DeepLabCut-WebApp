@@ -124,10 +124,10 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
                          opacity=0.8,
                          name=option)
             shapes.append(shape)
-            db.add_annotation(
-                name=option, username=username,
-                xy=utils.compute_circle_center(circle)
-            )
+            #db.add_annotation(
+            #    name=option, username=username,
+            #    xy=utils.compute_circle_center(circle)
+            #)
     else:
         if 'path' in key and button_id != 'slider':
             ind_moving = int(key.split('[')[1].split(']')[0])
