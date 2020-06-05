@@ -38,6 +38,17 @@ def save_data(click_s, ind_image):
 
 
 @view.app.callback(
+    Output('radio', 'options'),
+    [Input('next', 'n_clicks'),
+     Input('previous', 'n_clicks')]
+)
+def refresh_radio_buttons(click_n, click_p):
+    if not (click_n or click_p):
+        return dash.no_update
+    return view.refresh_radio_buttons()
+
+
+@view.app.callback(
     [Output('canvas', 'figure'),
      Output('radio', 'value'),
      Output('store', 'data'),
@@ -66,7 +77,6 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
     
     if ind_image is None: ind_image = 0
     shapes = [] if shapes is None else json.loads(shapes)
-    n_bpt = view.options.index(option)
 
     ctx = dash.callback_context
     event = ctx.triggered[0]['prop_id']
@@ -124,6 +134,7 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
     elif 'autorange' in key:
         view.fig.update_xaxes(autorange=True)
         view.fig.update_yaxes(autorange='reversed')
+    n_bpt = view.options.index(option)
     if button_id != 'slider' and 'relayout' not in event:
         n_bpt += 1
     new_option = view.options[min(len(view.options) - 1, n_bpt)]

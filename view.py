@@ -16,7 +16,7 @@ class AppView:
         self.current_idx = 0
         self.username = str(uuid.uuid4())
         self.appconfig = config
-        self.subset = random.sample(range(len(config.options)), config.n2show)
+        self.pick_keypoint_subset()
         self.make_figure_image(self.current_idx)
         self.app.layout = self.make_layout()
 
@@ -120,3 +120,10 @@ class AppView:
             html.Div(id='shapes', style={'display': 'none'})
         ]
         )
+
+    def pick_keypoint_subset(self):
+        self.subset = random.sample(range(len(self.appconfig.options)), self.appconfig.n2show)
+
+    def refresh_radio_buttons(self):
+        self.pick_keypoint_subset()
+        return [{'label': opt, 'value': opt} for opt in self.options]
