@@ -17,11 +17,6 @@ class AppView:
         self.app.layout = self.make_layout()
 
     @property
-    def fig(self):
-        print("Requested figure")
-        return self._fig
-
-    @property
     def options(self):
         return self.appconfig.options
 
@@ -96,10 +91,10 @@ class AppView:
                 html.Div([
                     html.Label('Keypoint label size'),
                     dcc.Slider(id='slider',
-                               min=3,
-                               max=36,
+                               min=1,
+                               max=24,
                                step=1,
-                               value=12)
+                               value=8)
                 ], style={'width': '80%',
                           'display': 'inline-block'})
             ],
