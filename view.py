@@ -14,7 +14,6 @@ class AppView:
         self.app = dash.Dash(name, external_stylesheets=external_stylesheets, server=server)
         self.db = db
         self.current_idx = 0
-        self.username = str(uuid.uuid4())
         self.appconfig = config
         self.pick_keypoint_subset()
         self.make_figure_image(self.current_idx)
@@ -84,7 +83,7 @@ class AppView:
                     dcc.Input(
                         id="input_name",
                         type='text',
-                        placeholder=self.username,
+                        placeholder=str(uuid.uuid4()),
                     ),
                     html.Button('Previous', id='previous'),
                     html.Button('Next', id='next'),
@@ -122,7 +121,8 @@ class AppView:
         )
 
     def pick_keypoint_subset(self):
-        self.subset = random.sample(range(len(self.appconfig.options)), self.appconfig.n2show)
+        self.subset = list(range(len(self.appconfig.options)))
+        #random.sample(range(len(self.appconfig.options)), self.appconfig.n2show)
 
     def refresh_radio_buttons(self):
         self.pick_keypoint_subset()
