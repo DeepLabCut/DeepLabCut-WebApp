@@ -27,5 +27,26 @@
         "L_B_Stiffle", 
         "R_B_Stiffle"
     ],
+    "cmap" : [
+        "15188B",
+        "3B1C9D",
+        "591FA7", 
+        "7C21AA", 
+        "7822A9", 
+        "9124A5", 
+        "BD358A", 
+        "CD4877", 
+        "D9586C", 
+        "EA7058", 
+        "F89142", 
+        "FDAA34", 
+        "FDC727", 
+        "FED525", 
+        "1F948C", 
+        "2CB17C", 
+        "50C56A", 
+        "97DA3D", 
+        "BBDF27"
+    ],
     "urls" : "config/filelist.lst"
 }
