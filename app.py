@@ -76,7 +76,7 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
             center = utils.compute_circle_center(shapes[i]['path'])
             new_path = utils.draw_circle(center, slider_val)
             shapes[i]['path'] = new_path
-    elif button_id in  ['clear', 'next', 'previous']:
+    elif button_id in ['clear', 'next', 'previous']:
         if button_id == 'clear':
             view.fig.layout.shapes = []
             view.fig.layout.xaxis.autorange = True
@@ -88,7 +88,7 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
         return view.make_figure_image(ind_image), view.options[0], ind_image, '[]'
 
     already_labeled = [shape['name'] for shape in shapes]
-    keys = list(relayoutData)
+    keys = list(relayoutData) if relayoutData else []
     key = keys[0] if len(keys) > 0 else ""
     if option not in already_labeled and button_id != 'slider' and 'relayout' not in event:
         if clickData:
