@@ -44,7 +44,7 @@ class AppView():
         return self._fig
 
     def make_figure_image(self, i):
-        data = self.db.dataset[i % len(self.db.dataset)]
+        data = self.db.fetch_image(i % len(self.db.dataset))
         fig = px.imshow(data.image)
         fig.layout.xaxis.showticklabels = False
         fig.layout.yaxis.showticklabels = False
@@ -74,14 +74,19 @@ class AppView():
             html.Div([
                 dcc.Graph(
                     id='canvas',
-                    config={'editable': True},
+                    config={
+                        'editable': False,
+                        'doubleClick' : False,
+                        'showTips' : False,
+                        'showLink' : False,
+                    },
                     figure=self.fig)
             ],
                 className="six columns"
             ),
             html.Div([
                 html.Div([
-                html.H3("Controls"),
+                html.H3("Body Parts"),
                 html.Div([
                 dcc.RadioItems(id='radio',
                             options=[{'label': opt, 'value': opt} for opt in self.options],

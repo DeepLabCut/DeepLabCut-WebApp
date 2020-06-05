@@ -26,31 +26,43 @@ cmap = matplotlib.cm.get_cmap('plasma', len(config.options))
 server = flask.Flask(__name__)
 view = view.AppView(__name__, db = db, config = config, server = server)
 
+
+@server.route('/csv/')
+def fetch_csv():
+    return db.to_csv()
+
+@server.route('/overview/')
+def fetch_html():
+    return db.to_html()
+
 @view.app.callback(Output('placeholder', 'children'),
               [Input('save', 'n_clicks')],
               [State('store', 'data')])
 def save_data(click_s, ind_image):
     if click_s:
-        xy = {shape.name: utils.compute_circle_center(shape.path) for shape in fig.layout.shapes}
+        xy = {shape.name: utils.compute_circle_center(shape.path) for shape in view.fig.layout.shapes}
         print(xy, ind_image)
 
 @view.app.callback(
     [Output('canvas', 'figure'),
      Output('radio', 'value'),
      Output('store', 'data'),
-     Output('shapes', 'children')],
+     Output('shapes', 'children'),
+     ],
     [Input('canvas', 'clickData'),
      Input('canvas', 'relayoutData'),
      Input('next', 'n_clicks'),
      Input('previous', 'n_clicks'),
      Input('clear', 'n_clicks'),
-     Input('slider', 'value')],
+     Input('slider', 'value'),
+     Input('input_name', 'value')
+     ],
     [State('canvas', 'figure'),
      State('radio', 'value'),
      State('store', 'data'),
      State('shapes', 'children')]
     )
-def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
+def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val, username,
                  figure, option, ind_image, shapes):
 
     # TODO Refactor: Remove if/else statements and instead write multiple
@@ -79,7 +91,9 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
         return view.make_figure_image(ind_image), view.options[0], ind_image, '[]'
 
     already_labeled = [shape['name'] for shape in shapes]
-    key = list(relayoutData)[0]
+    
+    keys = list(relayoutData)
+    key = keys[0] if len(keys) > 0 else ""
     if option not in already_labeled and button_id != 'slider':
         if clickData:
             x, y = clickData['points'][0]['x'], clickData['points'][0]['y']
@@ -93,6 +107,11 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
                          opacity=0.8,
                          name=option)
             shapes.append(shape)
+            db.add_annotation(
+                name = option, username = username,
+                xy = utils.compute_circle_center(circle)
+            )
+
     # TODO this produces an error (see below)
     #else:
     #    if 'path' in key and button_id != 'slider':
@@ -101,14 +120,16 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
     #        shapes[ind_moving]['path'] = path
             
     view.fig.update_layout(shapes=shapes)
-    if 'range[' in key:
-        xrange = relayoutData['xaxis.range[0]'], relayoutData['xaxis.range[1]']
-        yrange = relayoutData['yaxis.range[0]'], relayoutData['yaxis.range[1]']
-        view.fig.update_xaxes(range=xrange, autorange=False)
-        view.fig.update_yaxes(range=yrange, autorange=False)
-    elif 'autorange' in key:
-        view.fig.update_xaxes(autorange=True)
-        view.fig.update_yaxes(autorange=True)
+    print(f"| processing key: {key}")
+    if False:
+        if 'range[' in key:
+            xrange = relayoutData['xaxis.range[0]'], relayoutData['xaxis.range[1]']
+            yrange = relayoutData['yaxis.range[0]'], relayoutData['yaxis.range[1]']
+            view.fig.update_xaxes(range=xrange, autorange=False)
+            view.fig.update_yaxes(range=yrange, autorange=False)
+        elif 'autorange' in key:
+            view.fig.update_xaxes(autorange=True)
+            view.fig.update_yaxes(autorange=True)
     if button_id != 'slider':
         n_bpt += 1
     # TODO only advance the options if we placed a new point. 
