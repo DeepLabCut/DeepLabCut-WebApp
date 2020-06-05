@@ -23,8 +23,6 @@ db = model.AppModel(config = config)
 
 cmap = matplotlib.cm.get_cmap(COLORMAP, len(config.options))
 
-
-
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 server = flask.Flask(__name__)
@@ -56,16 +54,11 @@ def save_data(click_s, ind_image):
     )
 def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
                  figure, option, ind_image, shapes):
+
     if not any(event for event in (clickData, click_n, click_p, click_c)):
         return dash.no_update, dash.no_update, dash.no_update, dash.no_update
-
-    if ind_image is None:
-        ind_image = 0
-
-    if shapes is None:
-        shapes = []
-    else:
-        shapes = json.loads(shapes)
+    if ind_image is None: ind_image = 0
+    shapes = [] if shapes is None else json.loads(shapes)
     n_bpt = view.options.index(option)
 
     ctx = dash.callback_context
@@ -99,11 +92,11 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
                          opacity=0.8,
                          name=option)
             shapes.append(shape)
-    else:
-        if 'path' in key and button_id != 'slider':
-            ind_moving = int(key.split('[')[1].split(']')[0])
-            path = relayoutData.pop(key)
-            shapes[ind_moving]['path'] = path
+    #else:
+    #    if 'path' in key and button_id != 'slider':
+    #        ind_moving = int(key.split('[')[1].split(']')[0])
+    #        path = relayoutData.pop(key)
+    #        shapes[ind_moving]['path'] = path
             
     view.fig.update_layout(shapes=shapes)
     if 'range[' in key:
