@@ -86,7 +86,7 @@ class AppView():
             ),
             html.Div([
                 html.Div([
-                html.H3("Body Parts"),
+                html.H3("DeepLabCut Labeling App"),
                 html.Div([
                 dcc.RadioItems(id='radio',
                             options=[{'label': opt, 'value': opt} for opt in self.options],
@@ -121,7 +121,7 @@ class AppView():
             html.Div([
                 dcc.Markdown("""
                         **Instructions**\n
-                        Click on the image to add a keypoint.
+                        Left click on the image to add a keypoint. Please skip/do not label occluded points. If you make a mistake, click clear to start again.
 
                         ![](/static/img/example_labels.png)
                     """),
