@@ -9,7 +9,6 @@ import matplotlib.cm
 import matplotlib.colors as mcolors
 import numpy as np
 import random
-import plotly.graph_objects as go
 import plotly.express as px
 from skimage import data, transform
 
@@ -22,7 +21,6 @@ KEYPOINTS = ['Nose', 'L_Eye', 'R_Eye', 'L_Ear', 'R_Ear', 'Throat',
 N_SUBSET = 3
 IMAGE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'full_dog.png')
 encoded_image = base64.b64encode(open(IMAGE_PATH, 'rb').read())
-
 
 img = data.chelsea()
 img = img[::2, ::2]
@@ -120,7 +118,7 @@ app.layout = html.Div([
         html.Button('Save', id='save'),
         dcc.Store(id='store', data=0),
         html.P([
-            html.Label('Keypoint size'),
+            html.Label('Keypoint label size'),
             dcc.Slider(id='slider',
                        min=3,
                        max=36,
@@ -180,16 +178,16 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
     if ind_image is None:
         ind_image = 0
 
-    if shapes is None:
-        shapes = []
-    else:
-        shapes = json.loads(shapes)
+    shapes = [] if shapes is None else json.loads(shapes)
     n_bpt = options.index(option)
 
     ctx = dash.callback_context
-    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    event = ctx.triggered[0]['prop_id']
+    button_id = event.split('.')[0]
     if button_id == 'clear':
         fig.layout.shapes = []
+        fig.layout.xaxis.autorange = True
+        fig.layout.yaxis.autorange = 'reversed'
         return make_figure_image(ind_image), options[0], ind_image, '[]'
     elif button_id == 'next':
         ind_image = (ind_image + 1) % len(images)
@@ -205,7 +203,7 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
 
     already_labeled = [shape['name'] for shape in shapes]
     key = list(relayoutData)[0]
-    if option not in already_labeled and button_id != 'slider':
+    if option not in already_labeled and button_id != 'slider' and 'relayout' not in event:
         if clickData:
             x, y = clickData['points'][0]['x'], clickData['points'][0]['y']
             circle = draw_circle((x, y), slider_val)
@@ -224,15 +222,16 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
             path = relayoutData.pop(key)
             shapes[ind_moving]['path'] = path
     fig.update_layout(shapes=shapes)
-    if 'range[' in key:
+    if 'range[' in key and 'clickData' not in event:
         xrange = relayoutData['xaxis.range[0]'], relayoutData['xaxis.range[1]']
-        yrange = relayoutData['yaxis.range[0]'], relayoutData['yaxis.range[1]']
+        yrange = sorted((relayoutData['yaxis.range[0]'], relayoutData['yaxis.range[1]']),
+                        reverse=True)
         fig.update_xaxes(range=xrange, autorange=False)
         fig.update_yaxes(range=yrange, autorange=False)
     elif 'autorange' in key:
         fig.update_xaxes(autorange=True)
-        fig.update_yaxes(autorange=True)
-    if button_id != 'slider':
+        fig.update_yaxes(autorange='reversed')
+    if button_id != 'slider' and 'relayout' not in event:
         n_bpt += 1
     new_option = options[min(len(options) - 1, n_bpt)]
     return ({'data': figure['data'], 'layout': fig['layout']},
@@ -242,4 +241,4 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8051)
+    app.run_server(debug=False, port=8051)
