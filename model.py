@@ -1,29 +1,12 @@
-import flask
-
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
-from dash.dependencies import Input, Output, State
-import base64
-import json
-import os
-import matplotlib.cm
-import matplotlib.colors as mcolors
-import numpy as np
-import random
-import plotly.graph_objects as go
-import plotly.express as px
-from skimage import data, transform, io
-import numpy as np
-import glob
-import json
+from skimage import io
 import time
 
 import pandas as pd
 
 import custom_types
 
-class User():
+
+class User:
     """ Each user has a separate view on the labels and can label each image once """
 
     def __init__(self, name):
@@ -35,7 +18,8 @@ class User():
     def to_csv(self):
         return None
 
-class Dataset():
+
+class Dataset:
     """ Handles async data fetching """
 
     def __init__(self, fnames):
@@ -54,7 +38,8 @@ class Dataset():
     def __len__(self):
         return len(self.fnames)
 
-class AppModel():
+
+class AppModel:
 
     def __init__(self, config):
         

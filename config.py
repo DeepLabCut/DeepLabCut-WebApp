@@ -2,8 +2,8 @@ import json
 import os.path as osp
 import glob
 
-class Config():
 
+class Config:
     def __init__(self, config):
         assert osp.exists(config)
 

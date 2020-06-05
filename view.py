@@ -1,29 +1,15 @@
-import flask
-
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output, State
-import base64
-import json
-import os
-import matplotlib.cm
-import matplotlib.colors as mcolors
-import numpy as np
-import random
-import plotly.graph_objects as go
 import plotly.express as px
-from skimage import data, transform, io
-import numpy as np
-import glob
-import json
 
-class AppView():
+
+class AppView:
 
     def __init__(self, name, db, config, server):
         external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-        self.app = dash.Dash(name, external_stylesheets=external_stylesheets, server = server)
+        self.app = dash.Dash(name, external_stylesheets=external_stylesheets, server=server)
         self.db = db
         self.current_idx = 0
         self.appconfig = config
@@ -38,7 +24,7 @@ class AppView():
     @property
     def options(self):
         return self.appconfig.options
-    
+
     @property
     def fig(self):
         return self._fig
@@ -52,8 +38,8 @@ class AppView():
         fig.update_layout(
             title={
                 'text': data.fname,
-                'y':0.9,
-                'x':0.5,
+                'y': 0.9,
+                'x': 0.5,
                 'xanchor': 'center',
                 'yanchor': 'top'}
         )
@@ -75,10 +61,10 @@ class AppView():
                 dcc.Graph(
                     id='canvas',
                     config={
-                        'editable': False,
-                        'doubleClick' : False,
-                        'showTips' : False,
-                        'showLink' : False,
+                        'editable': True,
+                        'doubleClick': False,
+                        'showTips': False,
+                        'showLink': False,
                     },
                     figure=self.fig)
             ],
@@ -86,35 +72,36 @@ class AppView():
             ),
             html.Div([
                 html.Div([
-                html.H3("DeepLabCut Labeling App"),
-                html.Div([
-                dcc.RadioItems(id='radio',
-                            options=[{'label': opt, 'value': opt} for opt in self.options],
-                            value=self.options[0]
-                            ),
-                ], style ={"column-count" : "4"}),
+                    html.H3("DeepLabCut Labeling App"),
+                    html.Div([
+                        dcc.RadioItems(id='radio',
+                                       options=[{'label': opt, 'value': opt} for opt in
+                                                self.options],
+                                       value=self.options[0]
+                                       ),
+                    ], style={"column-count": "4"}),
                 ]),
                 html.Div([
-                dcc.Input(
-                    id="input_name",
-                    type='text',
-                    placeholder="Username",
-                ),
-                html.Button('Previous', id='previous'),
-                html.Button('Next', id='next'),
-                html.Button('Clear', id='clear'),
-                html.Button('Save', id='save'),
-                dcc.Store(id='store', data=0),
+                    dcc.Input(
+                        id="input_name",
+                        type='text',
+                        placeholder="Username",
+                    ),
+                    html.Button('Previous', id='previous'),
+                    html.Button('Next', id='next'),
+                    html.Button('Clear', id='clear'),
+                    html.Button('Save', id='save'),
+                    dcc.Store(id='store', data=0),
                 ]),
                 html.Div([
-                    html.Label('Keypoint size'),
+                    html.Label('Keypoint label size'),
                     dcc.Slider(id='slider',
-                            min=3,
-                            max=36,
-                            step=1,
-                            value=12)
-                    ], style={'width': '80%',
-                            'display': 'inline-block'})
+                               min=3,
+                               max=36,
+                               step=1,
+                               value=12)
+                ], style={'width': '80%',
+                          'display': 'inline-block'})
             ],
                 className="six columns"
             ),
@@ -128,7 +115,7 @@ class AppView():
                 html.Pre(id='click-data', style=self.style['pre'])
             ],
                 className='six columns',
-style = {"overflow-x" : "hidden"} 
+                style={"overflow-x": "hidden"}
             ),
             html.Div(id='placeholder', style={'display': 'none'}),
             html.Div(id='shapes', style={'display': 'none'})

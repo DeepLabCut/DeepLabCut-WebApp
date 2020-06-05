@@ -1,18 +1,8 @@
 import flask
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
 from dash.dependencies import Input, Output, State
-import base64
 import json
-import os
 import matplotlib.cm
-import matplotlib.colors as mcolors
-import numpy as np
-import random
-import plotly.express as px
-from skimage import data, transform
-
 import utils, config, model, view
 
 
@@ -21,19 +11,21 @@ __version__ = "0.1"
 print(f"| Starting version {__version__}")
 
 config = config.Config('config/config.json')
-db = model.AppModel(config = config)
+db = model.AppModel(config=config)
 cmap = matplotlib.cm.get_cmap('plasma', len(config.options))
 server = flask.Flask(__name__)
-view = view.AppView(__name__, db = db, config = config, server = server)
+view = view.AppView(__name__, db=db, config=config, server=server)
 
 
 @server.route('/csv/')
 def fetch_csv():
     return db.to_csv()
 
+
 @server.route('/overview/')
 def fetch_html():
     return db.to_html()
+
 
 @view.app.callback(Output('placeholder', 'children'),
               [Input('save', 'n_clicks')],
@@ -42,6 +34,7 @@ def save_data(click_s, ind_image):
     if click_s:
         xy = {shape.name: utils.compute_circle_center(shape.path) for shape in view.fig.layout.shapes}
         print(xy, ind_image)
+
 
 @view.app.callback(
     [Output('canvas', 'figure'),

@@ -1,22 +1,6 @@
-import flask
-
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
-from dash.dependencies import Input, Output, State
-import base64
-import json
-import os
-import matplotlib.cm
 import matplotlib.colors as mcolors
 import numpy as np
-import random
-import plotly.graph_objects as go
-import plotly.express as px
-from skimage import data, transform, io
-import numpy as np
-import glob
-import json
+
 
 def draw_circle(center, radius, n_points=50):
     pts = np.linspace(0, 2 * np.pi, n_points)
@@ -57,6 +41,7 @@ def compute_circle_center(path):
     a = num_a / den
     b = num_b / den
     return a, b
+
 
 def get_plotly_color(cmap, n):
     return mcolors.to_hex(cmap(n))
