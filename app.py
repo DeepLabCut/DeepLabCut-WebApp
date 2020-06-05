@@ -16,15 +16,9 @@ from skimage import data, transform
 
 import utils, config, model, view
 
-COLORMAP = 'plasma'
-
 config = config.Config('config/config.json')
 db = model.AppModel(config = config)
-
-cmap = matplotlib.cm.get_cmap(COLORMAP, len(config.options))
-
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
+cmap = matplotlib.cm.get_cmap('plasma', len(config.options))
 server = flask.Flask(__name__)
 view = view.AppView(__name__, db = db, config = config, server = server)
 
@@ -54,6 +48,9 @@ def save_data(click_s, ind_image):
     )
 def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
                  figure, option, ind_image, shapes):
+
+    # TODO Refactor: Remove if/else statements and instead write multiple
+    # callbacks.
 
     if not any(event for event in (clickData, click_n, click_p, click_c)):
         return dash.no_update, dash.no_update, dash.no_update, dash.no_update
@@ -92,6 +89,7 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
                          opacity=0.8,
                          name=option)
             shapes.append(shape)
+    # TODO this produces an error (see below)
     #else:
     #    if 'path' in key and button_id != 'slider':
     #        ind_moving = int(key.split('[')[1].split(']')[0])
@@ -109,6 +107,7 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
         view.fig.update_yaxes(autorange=True)
     if button_id != 'slider':
         n_bpt += 1
+    # TODO only advance the options if we placed a new point. 
     new_option = view.options[min(len(view.options) - 1, n_bpt)]
     return ({'data': figure['data'], 'layout': view.fig['layout']},
             new_option,
