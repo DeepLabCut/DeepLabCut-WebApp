@@ -24,16 +24,15 @@ class Dataset:
 
     def __init__(self, fnames):
         self.fnames = fnames
+        self.data = io.imread_collection(fnames)
 
     def __getitem__(self, index):
         if index >= len(self):
             raise StopIteration
 
-        fname = self.fnames[index]
-        img = io.imread(fname)
         # TODO revert this at some point
-        img = img[::5, ::5]
-        return custom_types.Image(fname=fname, image=img)
+        img = self.data[index][::5, ::5]
+        return custom_types.Image(fname=self.fnames[index], image=img)
 
     def __len__(self):
         return len(self.fnames)
