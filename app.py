@@ -48,6 +48,14 @@ def refresh_radio_buttons(click_n, click_p):
     return view.refresh_radio_buttons()
 
 
+def store_data(db, username, shapes):
+    for shape in shapes:
+        db.add_annotation(
+            name=shape.name, username=username,
+            xy=utils.compute_circle_center(shape.path)
+        )
+
+
 @view.app.callback(
     [Output('canvas', 'figure'),
      Output('radio', 'value'),
@@ -93,8 +101,10 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
             view.fig.layout.yaxis.autorange = 'reversed'
         elif button_id == 'next':
             ind_image = (ind_image + 1) % len(db.dataset)
+            store_data(db, username, view.fig.layout.shapes)
         elif button_id == 'previous':
             ind_image = (ind_image - 1) % len(db.dataset)
+            store_data(db, username, view.fig.layout.shapes)
         return view.make_figure_image(ind_image), view.options[0], ind_image, '[]'
 
     already_labeled = [shape['name'] for shape in shapes]
