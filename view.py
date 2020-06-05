@@ -84,7 +84,7 @@ class AppView:
                     dcc.Input(
                         id="input_name",
                         type='text',
-                        placeholder=self.username,
+                        value=self.username,
                     ),
                     html.Button('Previous', id='previous'),
                     html.Button('Next', id='next'),
