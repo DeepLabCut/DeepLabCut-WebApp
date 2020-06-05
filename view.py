@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.express as px
 import random
+import uuid
 
 
 class AppView:
@@ -13,6 +14,7 @@ class AppView:
         self.app = dash.Dash(name, external_stylesheets=external_stylesheets, server=server)
         self.db = db
         self.current_idx = 0
+        self.username = str(uuid.uuid4())
         self.appconfig = config
         self.subset = random.sample(range(len(config.options)), config.n2show)
         self.make_figure_image(self.current_idx)
@@ -82,7 +84,7 @@ class AppView:
                     dcc.Input(
                         id="input_name",
                         type='text',
-                        placeholder="Username",
+                        placeholder=self.username,
                     ),
                     html.Button('Previous', id='previous'),
                     html.Button('Next', id='next'),
