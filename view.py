@@ -2,6 +2,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.express as px
+import random
 
 
 class AppView:
@@ -13,12 +14,13 @@ class AppView:
         self.db = db
         self.current_idx = 0
         self.appconfig = config
+        self.subset = random.sample(range(len(config.options)), config.n2show)
         self.make_figure_image(self.current_idx)
         self.app.layout = self.make_layout()
 
     @property
     def options(self):
-        return self.appconfig.options
+        return [self.appconfig.options[i] for i in self.subset]
 
     @property
     def fig(self):

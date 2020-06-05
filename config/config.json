@@ -48,5 +48,6 @@
         "97DA3D", 
         "BBDF27"
     ],
-    "urls" : "config/filelist.lst"
+    "urls" : "config/filelist.lst",
+     "n2show" : 5
 }

@@ -94,7 +94,8 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
         if clickData:
             x, y = clickData['points'][0]['x'], clickData['points'][0]['y']
             circle = utils.draw_circle((x, y), slider_val)
-            color = utils.get_plotly_color(cmap, n_bpt)
+            ind_bpt = config.options.index(option)
+            color = utils.get_plotly_color(cmap, ind_bpt)
             shape = dict(type='path',
                          path=circle,
                          line_color=color,
@@ -104,8 +105,8 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
                          name=option)
             shapes.append(shape)
             db.add_annotation(
-                name = option, username = username,
-                xy = utils.compute_circle_center(circle)
+                name=option, username=username,
+                xy=utils.compute_circle_center(circle)
             )
     else:
         if 'path' in key and button_id != 'slider':
