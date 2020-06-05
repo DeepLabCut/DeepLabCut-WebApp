@@ -20,10 +20,6 @@ KEYPOINTS = ['Nose', 'L_Eye', 'R_Eye', 'L_Ear', 'R_Ear', 'Throat',
              'R_F_Wrist', 'L_F_Elbow', 'R_F_Elbow', 'L_B_Paw', 'R_B_Paw',
              'L_B_Hock', 'R_B_Hock', 'L_B_Stiffle', 'R_B_Stiffle']
 N_SUBSET = 3
-IMAGE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'full_dog.png')
-encoded_image = base64.b64encode(open(IMAGE_PATH, 'rb').read())
-
-print(IMAGE_PATH)
 
 img = data.chelsea()
 img = img[::2, ::2]
@@ -138,7 +134,6 @@ app.layout = html.Div([
                 Click on the image to add a keypoint.
             """),
         html.Pre(id='click-data', style=styles['pre']),
-        html.Img(src='data:image/png;charset=utf-8;base64,{}'.format(encoded_image))
     ],
         className='six columns'
     ),
