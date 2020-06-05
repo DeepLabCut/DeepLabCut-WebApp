@@ -3,14 +3,15 @@ import dash
 from dash.dependencies import Input, Output, State
 import json
 import matplotlib.cm
-import utils, config, model, view
+import utils, model, view
+from config import Config
 
 
 __version__ = "0.1"
 
 print(f"| Starting version {__version__}")
 
-config = config.Config('config/config.json')
+config = Config('config/config.json')
 db = model.AppModel(config=config)
 cmap = matplotlib.cm.get_cmap('plasma', len(config.options))
 server = flask.Flask(__name__)
