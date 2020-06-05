@@ -1,0 +1,31 @@
+   {
+       "abbrv" : {
+        "L" : "Left",
+        "R" : "Right",
+        "F" : "Front",
+        "B" : "Back"
+        },
+        "options" : [
+        "Nose",
+        "L_Eye",
+        "R_Eye", 
+        "L_Ear", 
+        "R_Ear", 
+        "Throat", 
+        "Withers", 
+        "TailSet", 
+        "L_F_Paw", 
+        "R_F_Paw", 
+        "L_F_Wrist", 
+        "R_F_Wrist", 
+        "L_F_Elbow", 
+        "R_F_Elbow", 
+        "L_B_Paw", 
+        "R_B_Paw", 
+        "L_B_Hock", 
+        "R_B_Hock", 
+        "L_B_Stiffle", 
+        "R_B_Stiffle"
+    ],
+    "urls" : "config/filelist.lst"
+}
