@@ -1,9 +1,9 @@
-from skimage import io
-import time
-
-import pandas as pd
-
 import custom_types
+import pandas as pd
+import random
+import time
+from skimage import io
+
 
 
 class User:
@@ -24,7 +24,8 @@ class Dataset:
 
     def __init__(self, fnames):
         self.fnames = fnames
-        self.data = io.imread_collection(fnames)
+        random.shuffle(self.fnames)
+        self.data = io.imread_collection(self.fnames)
 
     def __getitem__(self, index):
         if index >= len(self):
