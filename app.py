@@ -144,7 +144,7 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
     elif 'autorange' in key:
         view.fig.update_xaxes(autorange=True)
         view.fig.update_yaxes(autorange='reversed')
-    n_bpt = view.options.index(option)
+    n_bpt = view.options.index(option) if option in view.options else 0
     if button_id != 'slider' and 'relayout' not in event:
         n_bpt += 1
     new_option = view.options[min(len(view.options) - 1, n_bpt)]

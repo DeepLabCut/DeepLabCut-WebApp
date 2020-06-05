@@ -83,7 +83,7 @@ class AppView:
                     dcc.Input(
                         id="input_name",
                         type='text',
-                        placeholder=str(uuid.uuid4()),
+                        placeholder="Please add username"
                     ),
                     html.Button('Previous', id='previous'),
                     html.Button('Next', id='next'),
@@ -121,7 +121,7 @@ class AppView:
         )
 
     def pick_keypoint_subset(self):
-        self.subset = list(range(len(self.appconfig.options)))
+        self.subset = [0, 1, 2, 8, 9]
         #random.sample(range(len(self.appconfig.options)), self.appconfig.n2show)
 
     def refresh_radio_buttons(self):
