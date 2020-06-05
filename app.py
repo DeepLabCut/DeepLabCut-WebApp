@@ -16,6 +16,10 @@ from skimage import data, transform
 
 import utils, config, model, view
 
+__version__ = "0.1"
+
+print(f"| Starting version {__version__}")
+
 config = config.Config('config/config.json')
 db = model.AppModel(config = config)
 cmap = matplotlib.cm.get_cmap('plasma', len(config.options))
