@@ -18,17 +18,17 @@ import numpy as np
 import glob
 import json
 
-class AppView(dash.Dash):
+class AppView():
 
-    def __init__(self, name, server, db, config):
+    def __init__(self, name, db, config, server):
         external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-        super().__init__(name, external_stylesheets=external_stylesheets, server = server)
+
+        self.app = dash.Dash(name, external_stylesheets=external_stylesheets, server = server)
         self.db = db
         self.current_idx = 0
         self.appconfig = config
-        self.make_figure_image()
-        self.layout = self.make_layout()
-
+        self.make_figure_image(self.current_idx)
+        self.app.layout = self.make_layout()
 
     @property
     def fig(self):
@@ -38,20 +38,17 @@ class AppView(dash.Dash):
     @property
     def options(self):
         return self.appconfig.options
+    
+    @property
+    def fig(self):
+        return self._fig
 
-    def make_figure_image(self, index = None):
-        if index is not None:
-            self.current_idx = index
-
-        print("Fetch data")
-        
-        data = self.db.fetch_image(self.current_idx)
+    def make_figure_image(self, i):
+        data = self.db.dataset[i % len(self.db.dataset)]
         fig = px.imshow(data.image)
         fig.layout.xaxis.showticklabels = False
         fig.layout.yaxis.showticklabels = False
-        fig.update_traces(hoverinfo='none')
-        #fig.add_trace(go.Scatter(x=[], y=[], marker_color=[],
-        #            marker_cmin=0, marker_cmax=3, marker_size=18, mode='markers'))
+        fig.update_traces(hoverinfo='none', hovertemplate='')
         fig.update_layout(
             title={
                 'text': data.fname,
@@ -60,9 +57,8 @@ class AppView(dash.Dash):
                 'xanchor': 'center',
                 'yanchor': 'top'}
         )
-        print("Rendered Figure.")
         self._fig = fig
-        return self.fig
+        return self._fig
 
     @property
     def style(self):

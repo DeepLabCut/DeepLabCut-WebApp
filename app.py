@@ -1,5 +1,4 @@
 import flask
-
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -13,30 +12,33 @@ import numpy as np
 import random
 import plotly.graph_objects as go
 import plotly.express as px
-from skimage import data, transform, io
-import numpy as np
-import glob
-import json
+from skimage import data, transform
 
-import view, model, config, utils
-
-config = config.Config('config/config.json')
-server = flask.Flask(__name__)
-db = model.AppModel(config = config)
-app = view.AppView(__name__, config = config, server = server, db = db)
+import utils, config, model, view
 
 COLORMAP = 'plasma'
+
+config = config.Config('config/config.json')
+db = model.AppModel(config = config)
+
 cmap = matplotlib.cm.get_cmap(COLORMAP, len(config.options))
 
-@app.callback(Output('placeholder', 'children'),
+
+
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+server = flask.Flask(__name__)
+view = view.AppView(__name__, db = db, config = config, server = server)
+
+@view.app.callback(Output('placeholder', 'children'),
               [Input('save', 'n_clicks')],
               [State('store', 'data')])
 def save_data(click_s, ind_image):
     if click_s:
-        xy = {shape.name: utils.compute_circle_center(shape.path) for shape in app.fig.layout.shapes}
+        xy = {shape.name: utils.compute_circle_center(shape.path) for shape in fig.layout.shapes}
         print(xy, ind_image)
 
-@app.callback(
+@view.app.callback(
     [Output('canvas', 'figure'),
      Output('radio', 'value'),
      Output('store', 'data'),
@@ -54,9 +56,6 @@ def save_data(click_s, ind_image):
     )
 def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
                  figure, option, ind_image, shapes):
-
-    print("Update Image")
-
     if not any(event for event in (clickData, click_n, click_p, click_c)):
         return dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
@@ -67,34 +66,29 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
         shapes = []
     else:
         shapes = json.loads(shapes)
-
-    n_bpt = app.options.index(option)
+    n_bpt = view.options.index(option)
 
     ctx = dash.callback_context
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-
     if button_id == 'slider':
         for i in range(len(shapes)):
             center = utils.compute_circle_center(shapes[i]['path'])
             new_path = utils.draw_circle(center, slider_val)
             shapes[i]['path'] = new_path
-    else:
+    elif button_id in  ['clear', 'next', 'previous']:
         if button_id == 'clear':
-            app.fig.layout.shapes = []
+            view.fig.layout.shapes = []
         elif button_id == 'next':
             ind_image = (ind_image + 1) % len(db.dataset)
         elif button_id == 'previous':
             ind_image = (ind_image - 1) % len(db.dataset)
-        print("request next image")
-        return app.make_figure_image(ind_image), app.options[0], ind_image, '[]'
-
+        return view.make_figure_image(ind_image), view.options[0], ind_image, '[]'
 
     already_labeled = [shape['name'] for shape in shapes]
     key = list(relayoutData)[0]
     if option not in already_labeled and button_id != 'slider':
         if clickData:
             x, y = clickData['points'][0]['x'], clickData['points'][0]['y']
-            print(f"Added point {x},{y}")
             circle = utils.draw_circle((x, y), slider_val)
             color = utils.get_plotly_color(cmap, n_bpt)
             shape = dict(type='path',
@@ -110,25 +104,24 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
             ind_moving = int(key.split('[')[1].split(']')[0])
             path = relayoutData.pop(key)
             shapes[ind_moving]['path'] = path
-
-    app.fig.update_layout(shapes=shapes)
+            
+    view.fig.update_layout(shapes=shapes)
     if 'range[' in key:
         xrange = relayoutData['xaxis.range[0]'], relayoutData['xaxis.range[1]']
         yrange = relayoutData['yaxis.range[0]'], relayoutData['yaxis.range[1]']
-        app.fig.update_xaxes(range=xrange, autorange=False)
-        app.fig.update_yaxes(range=yrange, autorange=False)
+        view.fig.update_xaxes(range=xrange, autorange=False)
+        view.fig.update_yaxes(range=yrange, autorange=False)
     elif 'autorange' in key:
-        app.fig.update_xaxes(autorange=True)
-        app.fig.update_yaxes(autorange=True)
+        view.fig.update_xaxes(autorange=True)
+        view.fig.update_yaxes(autorange=True)
     if button_id != 'slider':
         n_bpt += 1
-    new_option = app.options[min(len(app.options) - 1, n_bpt)]
-    print("Show figure")
-    return ({'data': figure['data'], 'layout': app.fig['layout']},
+    new_option = view.options[min(len(view.options) - 1, n_bpt)]
+    return ({'data': figure['data'], 'layout': view.fig['layout']},
             new_option,
             ind_image,
             json.dumps(shapes))
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8051)
+    view.app.run_server(debug=True, port=8051)

@@ -44,6 +44,7 @@ class Dataset():
 
         fname = self.fnames[index]
         img = io.imread(fname)
+        img = img[::10,::10]
         return custom_types.image(fname = fname, image = img)
 
     def __len__(self):
