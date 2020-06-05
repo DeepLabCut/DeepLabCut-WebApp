@@ -32,8 +32,8 @@ class Dataset:
         fname = self.fnames[index]
         img = io.imread(fname)
         # TODO revert this at some point
-        img = img[::5,::5]
-        return custom_types.image(fname = fname, image = img)
+        img = img[::5, ::5]
+        return custom_types.Image(fname=fname, image=img)
 
     def __len__(self):
         return len(self.fnames)
@@ -55,17 +55,17 @@ class AppModel:
 
     def add_annotation(self, name, username, xy):
         self.annotations.append(dict(
-            name = self.active_image.fname,
-            label = name,
-            x = xy[0],
-            y = xy[1],
-            username = username,
-            timestamp = time.time())
+            name=self.active_image.fname,
+            label=name,
+            x=xy[0],
+            y=xy[1],
+            username=username,
+            timestamp=time.time())
         )
 
     def fetch_image(self, index):
         self.active_image = self.dataset[index]
-        return  self.active_image
+        return self.active_image
 
     def to_csv(self):
         return pd.DataFrame(self.annotations).to_csv()
