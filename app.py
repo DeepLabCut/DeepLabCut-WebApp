@@ -23,6 +23,7 @@ N_SUBSET = 3
 IMAGE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'full_dog.png')
 encoded_image = base64.b64encode(open(IMAGE_PATH, 'rb').read())
 
+print(IMAGE_PATH)
 
 img = data.chelsea()
 img = img[::2, ::2]
@@ -120,7 +121,7 @@ app.layout = html.Div([
         html.Button('Save', id='save'),
         dcc.Store(id='store', data=0),
         html.P([
-            html.Label('Keypoint size'),
+            html.Label('Keypoint label size'),
             dcc.Slider(id='slider',
                        min=3,
                        max=36,
@@ -242,4 +243,4 @@ def update_image(clickData, relayoutData, click_n, click_p, click_c, slider_val,
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8051)
+    app.run_server(debug=False, port=8051)
